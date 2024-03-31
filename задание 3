@@ -1,0 +1,87 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Xml;
+
+public class Event
+{
+    public string Date { get; set; }
+    public string Result { get; set; }
+    public string IpFrom { get; set; }
+    public string Method { get; set; }
+    public string UrlTo { get; set; }
+    public int Response { get; set; }
+}
+
+public class Log
+{
+    public List<Event> Events { get; set; }
+
+    public Log()
+    {
+        Events = new List<Event>();
+    }
+}
+
+public static class XmlParser
+{
+    public static Log ParseXml(string xmlFilePath)
+    {
+        Log log = new Log();
+        XmlDocument xmlDoc = new XmlDocument();
+        xmlDoc.Load(xmlFilePath);
+
+        XmlNodeList eventNodes = xmlDoc.SelectNodes("log/event");
+        foreach (XmlNode eventNode in eventNodes)
+        {
+            Event logEvent = new Event();
+            logEvent.Date = eventNode.Attributes["date"].Value;
+            logEvent.Result = eventNode.Attributes["result"].Value;
+
+            XmlNodeList childNodes = eventNode.ChildNodes;
+            foreach (XmlNode childNode in childNodes)
+            {
+                switch (childNode.Name)
+                {
+                    case "ip-from":
+                        logEvent.IpFrom = childNode.InnerText.Trim();
+                        break;
+                    case "method":
+                        logEvent.Method = childNode.InnerText.Trim();
+                        break;
+                    case "url-to":
+                        logEvent.UrlTo = childNode.InnerText.Trim();
+                        break;
+                    case "response":
+                        logEvent.Response = int.Parse(childNode.InnerText.Trim());
+                        break;
+                }
+            }
+
+            log.Events.Add(logEvent);
+        }
+
+        return log;
+    }
+}
+
+public class Program
+{
+    static void Main(string[] args)
+    {
+        string xmlFilePath = @"J:\Проекты\log.xml"; // Путь к файлу XML
+        Log log = XmlParser.ParseXml(xmlFilePath);
+
+        Console.WriteLine("События:");
+        foreach (Event logEvent in log.Events)
+        {
+            Console.WriteLine($"Дата: {logEvent.Date}");
+            Console.WriteLine($"Результат: {logEvent.Result}");
+            Console.WriteLine($"IP-адрес: {logEvent.IpFrom}");
+            Console.WriteLine($"Метод: {logEvent.Method}");
+            Console.WriteLine($"URL: {logEvent.UrlTo}");
+            Console.WriteLine($"Код ответа: {logEvent.Response}");
+            Console.WriteLine();
+        }
+    }
+}
