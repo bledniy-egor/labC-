@@ -1,0 +1,117 @@
+// определение класса "студент"using System.Text.RegularExpressions;
+
+using System.Text.RegularExpressions;
+using System;
+using System.Threading.Tasks.Dataflow;
+using System.Collections.Generic;
+
+public class Student
+{
+    public string nameid { get; set; }
+    public int ageid { get; set; }
+    public string groupid { get; set; }
+}
+// оплределение класса "староста"
+public class Starosta : Student
+{
+    public void OrganizeMeeting()
+    {
+        Console.WriteLine(nameid + " - староста группы " + groupid);
+    }
+}
+// определение класса "группа"
+public class Group
+{
+    public string nameid { get; set; }
+    public List<Student> studentIds { get; set; }
+    public Starosta head { get; set; }
+
+    public void DisplayStudentIds()
+    {
+        Console.WriteLine("Студенты группы " + nameid + ":");
+        foreach (var student in studentIds)
+        {
+            Console.WriteLine(student.nameid);
+        }
+    }
+}
+// класс для режима отображения данных 
+public class ViewerMode
+{
+    public void DisplayStudentInfo(Student student)
+    {
+        Console.WriteLine("Имя: " + student.nameid);
+        Console.WriteLine("Возраст: " + student.ageid);
+        Console.WriteLine("Группа: " + student.groupid);
+    }
+
+    public void DisplayGroupInfo(Group group)
+    {
+        Console.WriteLine("Номер группы: " + group.nameid);
+        Console.WriteLine("Староста группы: " + group.head.nameid);
+        Console.WriteLine("Список студентов:");
+        foreach (var student in group.studentIds)
+        {
+            Console.WriteLine(student.nameid);
+        }
+    }
+}
+
+// класс для режима редактирования данных
+public class EditMode
+{
+    public void EditStudentInfo(Student student)
+    {
+        Console.WriteLine("Введите новое имя студента:");
+        string newName = Console.ReadLine();
+
+        Console.WriteLine("Введите новый возраст студента:");
+        int newAge;
+        while (!int.TryParse(Console.ReadLine(), out newAge))
+        {
+            Console.WriteLine("Неверный формат. Пожалуйста, введите целое число:");
+        }
+
+        student.nameid = newName;
+        student.ageid = newAge;
+
+        Console.WriteLine("Данные студента успешно изменены");
+    }
+
+    public void EditGroupInfo(Group group)
+    {
+        Console.WriteLine("Введите новый номер группы:");
+        string newName = Console.ReadLine();
+
+        group.nameid = newName;
+
+        Console.WriteLine("Данные успешно изменены");
+    }
+}
+//прописываем пример работы программы
+public class Program
+{
+    static void Main(string[] args)
+    {
+        Student student1 = new Student { nameid = "Сергей", ageid = 29, groupid = "Группа 201" };
+        Student student2 = new Student { nameid = "Анжелика", ageid = 20, groupid = "Группа 201" };
+        Student student3 = new Student { nameid = "Алексей", ageid = 26, groupid = "Группа 201" };
+
+        Starosta starosta = new Starosta { nameid = "Георгий", ageid = 23, groupid = "Группа 201" };
+
+        Group group = new Group { nameid = "201", studentIds = new List<Student> { student1, student2, student3 }, head = starosta };
+
+        ViewerMode viewer = new ViewerMode();
+        viewer.DisplayStudentInfo(student1);
+        Console.WriteLine();
+        viewer.DisplayGroupInfo(group);
+        Console.WriteLine();
+        group.DisplayStudentIds();
+        Console.WriteLine();
+
+        EditMode editor = new EditMode();
+        editor.EditStudentInfo(student1);
+        Console.WriteLine();
+        editor.EditGroupInfo(group);
+    }
+}
