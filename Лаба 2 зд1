@@ -1,0 +1,44 @@
+using System;
+using System.IO;
+using System.Collections.Generic;
+
+namespace ReverseSentences
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            // Путь к текстовому файлу
+            string filePath = "C:\\sentences.txt.txt";
+
+            // Список для хранения предложений
+            List<string> sentences = new List<string>();
+
+            try
+            {
+                // Чтение файла
+                using (StreamReader reader = new StreamReader(filePath))
+                {
+                    string line;
+                    while ((line = reader.ReadLine()) != null)
+                    {
+                        sentences.Add(line); // Добавляем каждую строку в список
+                    }
+                }
+
+                // Вывод предложений в обратном порядке
+                Console.WriteLine("Предложения в обратном порядке:");
+                for (int i = sentences.Count - 1; i >= 0; i--) // Цикл, идущий с конца списка
+                {
+                    Console.WriteLine(sentences[i]); // Выводим предложение на экран
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Ошибка при чтении файла: " + ex.Message);
+            }
+
+            Console.ReadKey();
+        }
+    }
+}
