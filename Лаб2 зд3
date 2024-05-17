@@ -1,0 +1,173 @@
+using System;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+MyDate today = new MyDate(15, 11, 2023);
+MyDate tomorrow = today + 1;
+MyDate yesterday = today - 1;
+
+Console.WriteLine("Сегодня: ");
+today.PrintDate("dd/MM/yyyy");
+
+Console.WriteLine("Завтра: ");
+tomorrow.PrintDate("MM/dd/yyyy");
+
+Console.WriteLine("Вчера: ");
+yesterday.PrintDate("yyyy-MM-dd");
+
+Console.WriteLine("Сегодня и завтра - одна дата: " + (today == tomorrow));
+
+Console.WriteLine("Сегодня и вчера - разные даты: " + (today != yesterday));
+
+public class MyDate
+{
+    private int _day;
+    private int _month;
+    private int _year;
+
+    // Конструктор
+    public MyDate(int day, int month, int year)
+    {
+        _day = day;
+        _month = month;
+        _year = year;
+    }
+
+    // Свойства
+    public int Day
+    {
+        get { return _day; }
+        set { _day = value; }
+    }
+
+    public int Month
+    {
+        get { return _month; }
+        set { _month = value; }
+    }
+
+    public int Year
+    {
+        get { return _year; }
+        set { _year = value; }
+    }
+
+    // Перегрузка операторов
+    public static MyDate operator +(MyDate date, int days)
+    {
+        return date.AddDays(days);
+    }
+
+    public static MyDate operator -(MyDate date, int days)
+    {
+        return date.SubtractDays(days);
+    }
+
+    public static bool operator ==(MyDate date1, MyDate date2)
+    {
+        return date1.Equals(date2);
+    }
+
+    public static bool operator !=(MyDate date1, MyDate date2)
+    {
+        return !date1.Equals(date2);
+    }
+
+    // Методы вывода даты
+    public void PrintDate(string format)
+    {
+        switch (format)
+        {
+            case "dd/MM/yyyy":
+                Console.WriteLine($"{_day:D2}/{_month:D2}/{_year}");
+                break;
+            case "MM/dd/yyyy":
+                Console.WriteLine($"{_month:D2}/{_day:D2}/{_year}");
+                break;
+            case "yyyy-MM-dd":
+                Console.WriteLine($"{_year}-{_month:D2}-{_day:D2}");
+                break;
+            default:
+                Console.WriteLine($"Неверный формат вывода: {format}");
+                break;
+        }
+    }
+
+    // Вспомогательные методы
+    private MyDate AddDays(int days)
+    {
+        int newDay = _day + days;
+        int newMonth = _month;
+        int newYear = _year;
+
+        // Проверка на перенос в следующий месяц
+        while (newDay > GetDaysInMonth(newMonth, newYear))
+        {
+            newDay -= GetDaysInMonth(newMonth, newYear);
+            newMonth++;
+            if (newMonth > 12)
+            {
+                newMonth = 1;
+                newYear++;
+            }
+        }
+
+        return new MyDate(newDay, newMonth, newYear);
+    }
+
+    private MyDate SubtractDays(int days)
+    {
+        int newDay = _day - days;
+        int newMonth = _month;
+        int newYear = _year;
+
+        // Проверка на перенос в предыдущий месяц
+        while (newDay < 1)
+        {
+            newMonth--;
+            if (newMonth < 1)
+            {
+                newMonth = 12;
+                newYear--;
+            }
+            newDay += GetDaysInMonth(newMonth, newYear);
+        }
+
+        return new MyDate(newDay, newMonth, newYear);
+    }
+
+    private int GetDaysInMonth(int month, int year)
+    {
+        switch (month)
+        {
+            case 2:
+                return IsLeapYear(year) ? 29 : 28;
+            case 4:
+            case 6:
+            case 9:
+            case 11:
+                return 30;
+            default:
+                return 31;
+        }
+    }
+
+    private bool IsLeapYear(int year)
+    {
+        return (year % 4 == 0 && year % 100 != 0) || year % 400 == 0;
+    }
+
+    // Переопределение метода Equals
+    public override bool Equals(object obj)
+    {
+        if (obj is MyDate otherDate)
+        {
+            return _day == otherDate._day && _month == otherDate._month && _year == otherDate._year;
+        }
+        return false;
+    }
+
+    // Переопределение метода GetHashCode
+    public override int GetHashCode()
+    {
+        return _day.GetHashCode() ^ _month.GetHashCode() ^ _year.GetHashCode();
+    }
+}
